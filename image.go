@@ -8,3 +8,8 @@ type Image struct {
 	Hash								string			`json:hash`
 }
 
+const svc := Aws.S3Client.NewS3Client()
+
+func (img *Image) (user, text string, tags Categories) {
+	
+}

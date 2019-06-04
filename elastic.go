@@ -1,4 +1,4 @@
-package Elastic
+package main
 
 import (
 	"github.com/olivere/elastic"
@@ -20,8 +20,8 @@ func (e *Elastic) NewClient (*ELastic, error) {
 	return &Elastic{c, index}, nil
 }
 
-func (e *Elastic) AddImage(img *Models.Image) {
-
+func (e *Elastic) AddImage(img *Image) {
+	
 }
 
 func (e *Elastic) Exists(hash string) bool {
