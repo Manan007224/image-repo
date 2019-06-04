@@ -53,5 +53,5 @@ func (this *S3Client) Upload(path string) string, error {
       ContentDisposition:   aws.String("attachment"),
       ServerSideEncryption: aws.String("AES256"),
   })
-  return path, nil
+  return aws.String(fileDir), nil
 } 
