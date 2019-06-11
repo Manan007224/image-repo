@@ -27,8 +27,9 @@ func main() {
 	// 	fmt.Println(err)
 	// }
 	// fmt.Println(res)
-
-	rp, er := NewRepo("image-repo-manan", "image-repo")
+	s3bucket := "image-repo-manan"
+	esIndex := "image-repo"
+	rp, er := NewRepo(s3bucket, esIndex)
 	if er != nil {
 		fmt.Println(er)
 	}
@@ -37,6 +38,18 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
+
+	th := []string {"iJ_2pCaZl79XjQ7jvxuJKFd0bCWJIZ-7wH1hoAmHM58"}
+
+	fields := []string {"Text"}
+
+	res, err2 := rp.es.MoreLikeThis(th, fields)
+
+	if err != nil {
+		fmt.Println(err2)
+	}
+
+	fmt.Println(res)
 
 	// for i := 0; i < len(imgs); i++ {
 	// 	er := es.AddDoc(imgs[i])
