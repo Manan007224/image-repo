@@ -86,7 +86,7 @@ func (this *Elastic) Exists (hash string) error {
 	return errors.New("No such document")
 }
 
-func (this *Elastic) SearchTermQuery (k string, v interface{}) ([]Image, error) {
+func (this *Elastic) SearchWithTerm (k string, v interface{}) ([]Image, error) {
 	termQuery := elastic.NewBoolQuery().Filter(elastic.NewTermQuery(k, v))
 	src, err := this.client.Search().
 							Index(this.index).

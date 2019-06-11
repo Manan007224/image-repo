@@ -7,11 +7,7 @@ import (
 
 func main() {
   // bucket := "image-repo-manan"
-  // client := S3Init("image-repo-manan")
-  // err := client.S3Upload("mkm.jpg")
-  // if err != nil {
-  // 	fmt.Println(err)
-  // }
+
  //  tags1 := []string {"art", "sports", "music"}
  //  tags2 := []string {"sports", "drama"}
  //  tags3 := []string {"edu", "bank"}
@@ -21,16 +17,27 @@ func main() {
  //  img3 := CreateImage("Jags", "third-image", "just testing", "third-image", tags3, tags3)
  //  img4 := CreateImage("Kiran", "fourth-image", "just testing", "fourth-image",tags4, tags4)
  //  imgs := []*Image {img1, img2, img3, img4}
-	es, err := NewElasticClient("image-repo")
+	// es, err := NewElasticClient("image-repo")
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+
+	// res ,err := es.AutomcompleteSuggesterText("img")
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	// fmt.Println(res)
+
+	rp, er := NewRepo("image-repo-manan", "image-repo")
+	if er != nil {
+		fmt.Println(er)
+	}
+	tags1 := []string {"art", "sports", "music"}
+	_, err := rp.AddImage("./mkm1.jpg", "Manan", "first-image","just testing","first-image", tags1, tags1)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	res ,err := es.AutomcompleteSuggesterText("img")
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println(res)
 	// for i := 0; i < len(imgs); i++ {
 	// 	er := es.AddDoc(imgs[i])
 	// 	if er != nil {

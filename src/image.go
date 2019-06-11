@@ -44,7 +44,7 @@ type Image struct {
 //   }
 // }
 
-func CreateImage (user, text, desc, suggestt string, tags, suggestc []string,) *Image {
+func CreateImage (user, text, desc, suggestt string, tags, suggestc []string) *Image {
 	img := &Image {
 		User: user,
 		Tags: tags,

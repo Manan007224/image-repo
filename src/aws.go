@@ -28,7 +28,7 @@ func S3Init (bck string) *S3Client {
   return client
 }
 
-func (this *S3Client) S3Upload (filename string) (error) {
+func (this *S3Client) Upload (filename string) (error) {
   file, err := os.Open(filename)
   if err != nil {
     fmt.Println("Failed to open file", filename, err)
