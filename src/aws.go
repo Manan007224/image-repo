@@ -11,9 +11,9 @@ import (
 
 
 type S3Client struct {
-	sess      *session.Session
-  svc       *s3manager.Uploader
-  bucket    string
+    sess      *session.Session
+    svc       *s3manager.Uploader
+    bucket    string
 }
 
 func S3Init (bck string) *S3Client {

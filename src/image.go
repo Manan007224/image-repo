@@ -11,16 +11,40 @@ import (
 )
 
 type Image struct {
-	User								string			`json:"user"`
-	Tags								[]string		`json:charachteristics"`
-	Text								string			`json:text`
-	S3key								string			`json:s3key`
-	Hash								string			`json:hash`
-	CreatedAt						time.Time		`json:createdat`
-	Description					string 			`json:description`
+	User			string			`json:"User"`
+	Tags			[]string		`json:"Tags"`
+	Text			string			`json:"Text"`
+	S3key			string			`json:"S3key"`
+	Hash			string			`json:"Hash"`
+	CreatedAt		time.Time		`json:"Createdat"`
+	Description		string 			`json:"Description"`
+	SuggestT		string 			`json:"SuggestT"`
+	SuggestC		[]string 		`json:"SuggestC"`
 }
 
-func CreateImage (user, text, desc string, tags []string) *Image {
+// The mapping of the Elasticsearch client looks like
+// PUT imagerepo
+// {
+//   "mappings": {
+//     "properties": {
+//       "Text" : {"type" : "text"},
+//       "suggestT" : {
+//         "type" : "completion"
+//       },
+//       "suggestC" : {
+//         "type" : "completion"
+//       },
+//       "S3key" : {"type" : "text"},
+//       "Hash" : {"type" : "text"},
+//       "Description" : {"type" : "text"},
+//       "user" : {"type" : "text"},
+//       "Tags" : {"type": "text"},
+//       "CreateAt" : {"type" : "date"}
+//     }
+//   }
+// }
+
+func CreateImage (user, text, desc, suggestt string, tags, suggestc []string,) *Image {
 	img := &Image {
 		User: user,
 		Tags: tags,
@@ -29,6 +53,8 @@ func CreateImage (user, text, desc string, tags []string) *Image {
 		Hash: "",
 		CreatedAt: time.Now(),
 		Description: desc,
+		SuggestT: suggestt,
+		SuggestC: suggestc,
 	}
 	img.CalculateHash()
 	return img

@@ -12,8 +12,8 @@ const backgroundThreads = 5
 
 type Elastic struct {
 	client 	*elastic.Client
-	b  			*elastic.BulkProcessorService
-	index		string
+	b  		*elastic.BulkProcessorService
+	index	string
 }
 
 func NewElasticClient (idx string) (*Elastic, error) {
@@ -50,7 +50,7 @@ func (this *Elastic) checkExists (idx string) error {
 func (this *Elastic) AddDoc (img *Image) error {
 	_, err := this.client.Index().
 						Index(this.index).
-						Type("doc").
+						Type("_doc").
 						Id(img.Hash).
 						BodyJson(img).
 						Refresh("wait_for").
@@ -67,7 +67,7 @@ func (this *Elastic) BulkAddDoc(imgs []*Image) error {
 	}
 	for i := 0; i < len(imgs); i++ {
 		t := imgs[i]
-		r := elastic.NewBulkIndexRequest().Index(this.index).Type("doc").Id(t.Hash).Doc(t)
+		r := elastic.NewBulkIndexRequest().Index(this.index).Type("_doc").Id(t.Hash).Doc(t)
 		p.Add(r)
 	}
 	err = p.Flush()
@@ -106,11 +106,11 @@ func (this *Elastic) SearchWithTags (tags []string) ([]Image, error) {
 	itags := convertToIf(tags)
 	query := elastic.NewBoolQuery().Filter(elastic.NewTermsQuery("Tags", itags...))
 	src, err := this.client.Search().
-									Index(this.index).
-									Query(query).
-									From(0).Size(10).
-									Pretty(true).
-									Do(context.Background())
+							Index(this.index).
+							Query(query).
+							From(0).Size(10).
+							Pretty(true).
+							Do(context.Background())
 	if err != nil {
 		return nil, err
 	}
@@ -146,11 +146,11 @@ func (this *Elastic) MoreLikeThis (hashes, fields []string) ([]Image, error) {
 	}
 	query = query.LikeItems(docs...)
 	src, err := this.client.Search().
-									Index(this.index).
-									Query(query).
-									From(0).Size(10).
-									Pretty(true).
-									Do(context.Background())
+							Index(this.index).
+							Query(query).
+							From(0).Size(10).
+							Pretty(true).
+							Do(context.Background())
 	if err != nil {
 		return nil, err
 	}
@@ -183,4 +183,54 @@ func decodeSearchResultHits (hits []*elastic.SearchHit) ([]Image, error) {
 	} else {
 		return nil, errors.New("No results found")
 	}
+}
+
+// Automcomplete and completion stuff
+
+// Our Index "image-repo" has two different completion suggestors
+// 1) - SuggestT - suggestor for autocompleting text
+// 2) - SuggestC - suggestor for autocompleting tags
+// An example of an autocomplete query looks like
+//
+// POST image-repo/_search
+// {
+//   "suggest": {
+//       "text-suggest" : {
+//           "prefix" : "nir",
+//           "completion" : {
+//               "field" : "SuggestT", 
+//               "size" : 5 
+//           }
+//       }
+//   }
+// }
+
+func (this *Elastic) AutomcompleteSuggester (prefix, field string) ([]string, error) {
+	var F string
+	if field == "Text" {
+		F = "SuggestT"
+	} else if field == "Tags" {
+		F = "SuggestC"
+	} else {
+		return nil, errors.New("not a valid option")
+	}
+	textSuggester := elastic.NewCompletionSuggester("text-suggest").Fuzziness(1).Text(prefix).Field(F)
+	searchSource := elastic.NewSearchSource().Suggester(textSuggester).FetchSource(false).TrackScores(true)
+
+	src, err := this.client.Search().
+							Index(this.index).
+							Type("_doc").
+							SearchSource(searchSource).
+							Do(context.Background())
+	if err != nil {
+		return nil, err
+	}																			
+	textSuggest := src.Suggest["text-suggest"]
+	var result []string
+	for _, options := range textSuggest {
+		for _, option := range options.Options {
+			result = append(result, option.Text)
+		}
+	}
+	return result, nil									
 }
