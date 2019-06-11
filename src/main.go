@@ -32,9 +32,11 @@ func main() {
 
 	// if err1 != nil {fmt.Println(err)}
 
-	tags := []string {"sports", "movie"}
+	th := []string {"iJ_2pCaZl79XjQ7jvxuJKFd0bCWJIZ-7wH1hoAmHM58"}
 
-	res, err := es.SearchWithTags(tags)
+	// tags := []string {"sports", "movie"}
+	fields := []string {"Text"}
+	res, err := es.MoreLikeThis(th, fields)
 
 	if err != nil {
 		fmt.Println(err)

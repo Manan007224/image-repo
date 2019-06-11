@@ -118,6 +118,46 @@ func (this *Elastic) SearchWithTags (tags []string) ([]Image, error) {
 	return result, err
 }
 
+// This query finds the set of arguments that are like to the given set of documents
+// An example would look like this
+// GET _search
+// {
+//   "query": {
+//     "more_like_this": {
+//       "fields": [
+//         "Tags"
+//       ],
+//       "like": [
+//         {
+//           "_index" : "images",
+//           "_id" : "iJ_2pCaZl79XjQ7jvxuJKFd0bCWJIZ-7wH1hoAmHM58"
+//         }
+//       ]
+//     }
+//   }
+// }
+
+func (this *Elastic) MoreLikeThis (hashes, fields []string) ([]Image, error) {
+	query := elastic.NewMoreLikeThisQuery()
+	query = query.Field(fields...)
+	docs := make([]*(elastic.MoreLikeThisQueryItem), len(hashes))
+	for i := 0; i < len(hashes); i++ {
+		docs[i] = elastic.NewMoreLikeThisQueryItem().Index(this.index).Id(hashes[i])
+	}
+	query = query.LikeItems(docs...)
+	src, err := this.client.Search().
+									Index(this.index).
+									Query(query).
+									From(0).Size(10).
+									Pretty(true).
+									Do(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	result, err := decodeSearchResultHits(src.Hits.Hits)
+	return result, nil								
+}
+
 func convertToIf(tags []string) []interface{} {
 	itags := make([]interface{}, len(tags))
 	for i := 0; i < len(tags); i++ {
